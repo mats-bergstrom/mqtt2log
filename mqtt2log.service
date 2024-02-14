@@ -6,7 +6,7 @@ Requires=mosquitto.service
 After=mosquitto.service
 
 [Service]
-ExecStart=/usr/local/bin/mqtt2log
+ExecStart=/usr/local/bin/mqtt2log /var/local/mqtt2log/mqtt2log.cfg
 StandardOutput=journal+console
 Restart=always
 RestartSec=3

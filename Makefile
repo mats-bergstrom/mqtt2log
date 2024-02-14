@@ -45,4 +45,5 @@ install:
 	if [ ! -d $(ILOG) ] ; then mkdir $(ILOG); fi
 	cp $(BINARIES) $(IBIN)
 	cp $(SYSTEMD_FILES) $(SYSTEMD_DIR)
+	cp mqtt2log.cfg $(ILOG)
 
