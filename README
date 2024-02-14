@@ -1,0 +1,75 @@
+mqtt2log - logging mqtt messages to a log file
+         in a format suitable for ticktockdb.
+
+The program subscribes to mqtt topics and logs these to a log file.
+The log file is closed and a new opened after a specified number of
+lines in the log file.
+
+The logfile is named according to the time it is created at.
+
+The program does chdir to /var/local/mqtt2log at start.  This is where the log
+files will end up.
+
+The program takes a configuration file as input.
+
+The generic format of the configuration file is
+	<white-space>* <tag> [<white-space> <arg>]* <end-of-line>
+where the final argument continues to the end of the line.
+Comment lines are ignored and have the format
+	<white-space>* '#' <anything> <end-of-line>
+
+
+The specific tags used by 'mqtt2log' are (<white-space> between <tag> and <args>
+is implicit):
+'mqtt' <ip-address> <port> <mqtt-id>
+	<ip-address>	address of the mqtt broker, see mosquitto_connect().
+	<port>		port of the mqtt broker, see mosquitto_connect().
+	<mqtt-id>	id string of the client, see mosquitto_new().
+
+'logfile' <max-lines>
+	<max-lines>	When the program has written this amount of lines to
+			a logfile, it is closed and a new is created.
+
+'subscribe' <topic-selection>
+	<topic-selection> topic(s) to subscribe to, see mosquitto_subscribe().
+	Up to 32 selections can be subscribed to. '*' is replace with '#' as the
+	latter may be used ad end-of-line comments later.  I.E. use '*' in place
+	of '#' in the config file.
+
+'topic' <topic> <metric> <tags>
+	<topic>		An mqtt topic.
+	<metric>	"metric" the topic name is translated to.
+	<tags>		"tags" (to the end of line> used.
+	When the topic arrives, it is written to the log file with the
+	translation:
+		'put' <metric> <time-stamp> <payload> <tags>
+	See ticktockdb for further information on metric, time-stamp and tags.
+	If the metric is '@ignore', no output is produced.  The <tags> argument
+	must be present in the config file, but is ignored.
+	If the <topic> is not recognised, it is written to the log file as:
+		'bad' <topic> <time-stamp> <payload>
+
+Example config file:
+	mqtt 127.0.0.1 1883 test-id
+	logfile 20000
+	subscribe *
+	topic temp/basement T loc=basement
+	topic temp/kitchen  T loc=kitchen
+	topic temp/test     @ignore anything
+
+
+
+
+Shorthand commands to see status of mqtt2log: 
+
+systemctl status mqtt2log
+sudo systemctl start mqtt2log
+sudo systemctl stop mqtt2log
+sudo journalctl -t mqtt2log
+
+sudo systemctl stop mqtt2log
+sudo make install
+sudo systemctl start mqtt2log
+systemctl status mqtt2log
+
+journalctl -f -t mqtt2log

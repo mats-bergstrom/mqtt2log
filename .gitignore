@@ -1,0 +1,6 @@
+*.o
+*~
+*.log
+logger
+mqtt2log
+push.sh

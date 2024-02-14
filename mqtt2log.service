@@ -1,0 +1,15 @@
+# Service file for mqtt2log
+
+[Unit]
+Description=mqtt2log service
+Requires=mosquitto.service
+After=mosquitto.service
+
+[Service]
+ExecStart=/usr/local/bin/mqtt2log
+StandardOutput=journal+console
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
