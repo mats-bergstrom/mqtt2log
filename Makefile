@@ -1,6 +1,5 @@
 ######################### -*- Mode: Makefile-Gmake -*- ########################
 ## Copyright (C) 2018, Mats Bergstrom
-## $Id$
 ## 
 ## File name       : Makefile
 ## Description     : to build mqtt2log
@@ -10,20 +9,24 @@
 ## 
 ###############################################################################
 
-CC = gcc
-CFLAGS = -Wall -pedantic-errors -I../cfgf -g
-LDLIBS = -lmosquitto -lcfgf
-LDFLAGS = -L../cfgf
+CC	= gcc
+CFLAGS	= -Wall -pedantic-errors -g
+CPPFLAGS= -Icfgf
+LDLIBS	= -lmosquitto -lcfgf
+LDFLAGS = -Lcfgf
 
 IBIN	= /usr/local/bin
 ILOG	= /var/local/mqtt2log
+ETCDIR	= /usr/local/etc
 SYSTEMD_DIR = /lib/systemd/system
 
-BINARIES = mqtt2log
-SYSTEMD_FILES = mqtt2log.service
+BINARIES	= mqtt2log
+SYSTEMD_FILES	= mqtt2log.service
+CFGS		= mqtt2log.cfg
 
+CFGFGIT		= https://github.com/mats-bergstrom/cfgf.git
 
-all: mqtt2log
+all: cfgf mqtt2log
 
 mqtt2log: mqtt2log.o
 
@@ -31,10 +34,17 @@ mqtt2log.o: mqtt2log.c
 
 
 
-.PHONY: clean uninstall install
+.PHONY: cfgf really-clean clean uninstall install
 
+cfgf:
+	if [ ! -d cfgf ] ; then git clone $(CFGFGIT) ; fi
+	cd cfgf && make
+
+really-clean:
+	rm -rf cfgf
 clean:
 	rm -f *.o mqtt2log *~ *.log .*~
+	cd cfgf && make clean
 
 uninstall:
 	cd $(SYSTEMD_DIR); rm $(SYSTEMD_FILES)
@@ -43,7 +53,7 @@ uninstall:
 install:
 	if [ ! -d $(IBIN) ] ; then mkdir $(IBIN); fi
 	if [ ! -d $(ILOG) ] ; then mkdir $(ILOG); fi
+	if [ ! -d $(ETCDIR) ] ; then mkdir $(ETCDIR); fi
 	cp $(BINARIES) $(IBIN)
 	cp $(SYSTEMD_FILES) $(SYSTEMD_DIR)
-	cp mqtt2log.cfg $(ILOG)
-
+	cp $(CFGS) $(ETCDIR)

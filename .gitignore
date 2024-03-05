@@ -1,6 +1,7 @@
 *.o
 *~
 *.log
-logger
+cfgf
 mqtt2log
 push.sh
+private-mqtt2log.cfg
