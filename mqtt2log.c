@@ -348,12 +348,22 @@ lf_log_sd( const char* s, int d )
 
 /* ************************************************************************** */
 
+void
+mqtt_subscribe(struct mosquitto *mqc) {
+    int n;
+    for ( n = 0; n < n_sub_str; ++n ) {
+	printf(".. Subscribe \"%s\"\n", sub_str[n]);
+	mosquitto_subscribe(mqc, NULL, sub_str[n], 0);
+    }
+}
+
 
 void
 connect_callback(struct mosquitto *mqc, void *obj, int result)
 {
     lf_log_sd("connect: ", result);
     printf("Connected: %d\n", result);
+    mqtt_subscribe(mqc);
 }
 
 
@@ -498,16 +508,10 @@ main(int argc, const char** argv)
 
     do {
 	int i;
-	unsigned n;
 	i = mosquitto_connect(mqc, mqtt_broker, mqtt_port, 60);
 	if ( i != MOSQ_ERR_SUCCESS) {
 	    perror("mosquitto_connect: ");
 	    exit( EXIT_FAILURE );
-	}
-
-	for ( n = 0; n < n_sub_str; ++n ) {
-	    printf("subscribe \"%s\"\n", sub_str[n]);
-	    mosquitto_subscribe(mqc, NULL, sub_str[n], 0);
 	}
 
 	do {
